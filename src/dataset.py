@@ -9,8 +9,31 @@ from torch.utils.data import Dataset
 
 
 class FashionIQDataset(Dataset):
+    """
+    FashionIQ dataset class for PyTorch.
+    The dataset can be used in 'relative' or 'classic' mode:
+        - In 'classic' mode the dataset yield :a dict with keys ['image', 'image_name']
+        - In 'relative' mode the dataset yield dict with keys:
+            - ['reference_image', 'reference_name', 'target_image', 'target_name', 'relative_captions'] when
+             split in ['train', 'val']
+            - ['reference_image', 'reference_name', 'relative_captions'] when split == test
+    """
+
     def __init__(self, dataPath, split: Literal['train', 'val', 'test'], dress_types: List[str],
                  mode: Literal['relative', 'classic'], preprocess: callable, no_duplicates: Optional[bool] = False):
+        """
+        :param dataset_path: path to the FashionIQ dataset
+        :param split: dataset split, should be in ['train, 'val', 'test']
+        :param dress_types: list of fashionIQ categories, each category should be in ['dress', 'shirt', 'toptee']
+        :param mode: dataset mode, should be in ['relative', 'classic']:
+            - In 'classic' mode the dataset yield a dict with keys ['image', 'image_name']
+            - In 'relative' mode the dataset yield dict with keys:
+                - ['reference_image', 'reference_name', 'target_image', 'target_name', 'relative_captions']
+                 when split in ['train', 'val']
+                - ['reference_image', 'reference_name', 'relative_captions'] when split == test
+        :param preprocess: function which preprocesses the image
+        :param no_duplicates: if True, the dataset will not yield duplicate images in relative mode, does not affect classic mode
+        """
         dataset_path = Path(dataPath)
         self.dataset_path = dataset_path
         self.mode = mode
@@ -29,6 +52,7 @@ class FashionIQDataset(Dataset):
 
         self.preprocess = preprocess
 
+        # get triplets made by (reference_image, target_image, a pair of relative captions)
         self.triplets: List[dict] = []
         for dress_type in dress_types:
             with open(dataset_path / 'captions' / f'cap.{dress_type}.{split}.json') as f:
@@ -108,9 +132,29 @@ class FashionIQDataset(Dataset):
 
 
 class CIRRDataset(Dataset):
+    """
+   CIRR dataset class for PyTorch dataloader.
+   The dataset can be used in 'relative' or 'classic' mode:
+        - In 'classic' mode the dataset yield a dict with keys ['image', 'image_name']
+        - In 'relative' mode the dataset yield dict with keys:
+            - ['reference_image', 'reference_name', 'target_image', 'target_name', 'relative_caption', 'group_members']
+             when split in ['train', 'val']
+            - ['reference_image', 'reference_name' 'relative_caption', 'group_members', 'pair_id'] when split == test
+    """
 
     def __init__(self, dataPath, split: Literal['train', 'val', 'test'],
                  mode: Literal['relative', 'classic'], preprocess: callable, no_duplicates: Optional[bool] = False):
+        """
+        :param split: dataset split, should be in ['train', 'val', 'test']
+        :param mode: dataset mode, should be in ['relative', 'classic']:
+                - In 'classic' mode the dataset yield a dict with keys ['image', 'image_name']
+                - In 'relative' mode the dataset yield dict with keys:
+                    - ['reference_image', 'reference_name', 'target_image', 'target_name', 'relative_caption',
+                    'group_members'] when split in ['train', 'val']
+                    - ['reference_image', 'reference_name' 'relative_caption', 'group_members', 'pair_id'] when split == test
+        :param preprocess: function which preprocesses the image
+        :param no_duplicates: if True, the dataset will not yield duplicate images in relative mode, does not affect classic mode
+        """
         dataset_path = Path(dataPath)
         self.dataset_path = dataset_path
         self.preprocess = preprocess
@@ -210,8 +254,24 @@ class CIRRDataset(Dataset):
 
 
 class CIRCODataset(Dataset):
+    """
+    CIRCO dataset class for PyTorch.
+    The dataset can be used in 'relative' or 'classic' mode:
+        - In 'classic' mode the dataset yield a dict with keys ['image', 'image_name']
+        - In 'relative' mode the dataset yield dict with keys:
+            - ['reference_image', 'reference_name', 'target_image', 'target_name', 'relative_captions', 'shared_concept',
+             'gt_img_ids', 'query_id'] when split == 'val'
+            - ['reference_image', 'reference_name', 'relative_captions', 'shared_concept', 'query_id'] when split == test
+    """
 
     def __init__(self, dataPath, split: Literal['val', 'test'], mode: Literal['relative', 'classic'], preprocess: callable):
+        """
+        Args:
+            dataset_path (Union[str, Path]): path to CIRCO dataset
+            split (str): dataset split, should be in ['test', 'val']
+            mode (str): dataset mode, should be in ['relative', 'classic']
+            preprocess (callable): function which preprocesses the image
+        """
 
         # Set dataset paths and configurations
         dataset_path = Path(dataPath)
@@ -341,11 +401,11 @@ class CIRCODataset(Dataset):
 
 class ImageNetDataset(Dataset):
 
-    def __init__(self, dataPath, image_cap_data_path, preprocess):
+    def __init__(self, dataPath, preprocess):
         self.path = dataPath
         self.transform = preprocess
 
-        with open(image_cap_data_path, 'r') as f:
+        with open("img_data_split_10_new.json", 'r') as f:
             self.img_data = json.load(f)
 
     def __getitem__(self, index):
