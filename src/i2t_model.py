@@ -109,7 +109,6 @@ def get_img_patch_feats(img, clip_model):
 
 
 def contrastive_loss(v1, v2, temperature: float):
-    # Based on https://github.com/NVlabs/PALAVRA/blob/main/utils/nv.py
     v1 = F.normalize(v1, dim=1)
     v2 = F.normalize(v2, dim=1)
 
