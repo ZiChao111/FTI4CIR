@@ -150,10 +150,10 @@ def main():
                 best_score_cirr = current_score
                 best_json_path_combine = os.path.join(args.save_path, "metrics_best_validation_cirr.json")
                 save_dict_to_json(metrics, best_json_path_combine)
-                # generate the test results
-                generate_test_json.cirr_generate_test_submission_file(img2text, clip_model, index_features, index_names,
-                                                                      relative_test_dataset,
-                                                                      f"cirr_{epoch}", args.save_path)
+            # generate the test results
+            generate_test_json.cirr_generate_test_submission_file(img2text, clip_model, index_features, index_names,
+                                                                  relative_test_dataset,
+                                                                  f"cirr_{epoch}", args.save_path)
 
         elif args.dataset.lower() == 'circo':
             metrics = evaluate.circo_compute_val_metrics(relative_val_dataset, clip_model, img2text,
@@ -174,11 +174,11 @@ def main():
                 best_score_circo = current_score
                 best_json_path_combine = os.path.join(args.save_path, "metrics_best_circo.json")
                 save_dict_to_json(metrics, best_json_path_combine)
-                # generate the test results
-                generate_test_json.circo_generate_test_submission_file(img2text, clip_model, index_features,
-                                                                       index_names,
-                                                                       relative_test_dataset,
-                                                                       f"circo_{epoch}", args.save_path)
+            # generate the test results
+            generate_test_json.circo_generate_test_submission_file(img2text, clip_model, index_features,
+                                                                   index_names,
+                                                                   relative_test_dataset,
+                                                                   f"circo_{epoch}", args.save_path)
 
 
 if __name__ == '__main__':
