@@ -109,6 +109,7 @@ def get_img_patch_feats(img, clip_model):
 
 
 def contrastive_loss(v1, v2, temperature: float):
+    # Based on https://github.com/NVlabs/PALAVRA/blob/main/utils/nv.py
     v1 = F.normalize(v1, dim=1)
     v2 = F.normalize(v2, dim=1)
 
@@ -177,7 +178,7 @@ class IMG2TEXT(nn.Module):
             mask = attention_weights[i] > self.epsilon
             non_indices = torch.nonzero(mask).squeeze()
             num_r = non_indices.numel() if non_indices.numel() < self.topk else self.topk
-            if num_r < 1: 
+            if num_r < 1:
                 num_r = 1
             # Ensure the order of attribute features
             select_indices = sorted_indices[i][:num_r]
@@ -221,16 +222,16 @@ class IMG2TEXT(nn.Module):
         cosine_loss = self.cosine_criterion(img_global_feat, pseudo_word_based_feat, self.criterion_target.cuda())
         return cosine_loss
 
-    def semanic_regularization_loss(self, category, captions, pseudo_word_based_feat, img_subj_token, img_attr_tokens,
-                            clip_model, local_attr_num):
+    def semanic_regularization_loss(self, subject, attribute, pseudo_word_based_feat, img_subj_token, img_attr_tokens,
+                                    clip_model, local_attr_num):
 
-        t_both = ["a photo of " + category[s_id] + " with " + captions[s_id] for s_id in range(len(captions))]
-        t_subj = ["a photo of * with " + captions[s_id] for s_id in range(len(captions))]
+        t_both = ["a photo of " + subject[s_id] + " with " + attribute[s_id] for s_id in range(len(attribute))]
+        t_subj = ["a photo of * with " + attribute[s_id] for s_id in range(len(attribute))]
 
         bs = len(local_attr_num)
         t_attr = []
         for i in range(bs):
-            text = f"a photo of " + category[i] + " with " + f"{'* ' * local_attr_num[i]}"
+            text = f"a photo of " + subject[i] + " with " + f"{'* ' * local_attr_num[i]}"
             t_attr.append(text)
 
         t_both = clip.tokenize(t_both, truncate=True).cuda(non_blocking=True)
@@ -241,9 +242,9 @@ class IMG2TEXT(nn.Module):
             t_both_feat = clip_model.encode_text(t_both)
 
         t_subject_feat = token_replace(local_attr_num, t_subj, img_subj_token, img_attr_tokens,
-                                      clip_model, 1)
+                                       clip_model, 1)
         t_attribute_feat = token_replace(local_attr_num, t_attr, img_subj_token, img_attr_tokens,
-                                     clip_model, 2)
+                                         clip_model, 2)
 
         reg_attribute_loss = self.cosine_loss(t_attribute_feat, t_both_feat)
         reg_subject_loss = self.cosine_loss(t_subject_feat, t_both_feat)
@@ -259,7 +260,7 @@ class IMG2TEXT(nn.Module):
         templates = clip.tokenize(template_list, truncate=True).cuda(non_blocking=True)
         return templates
 
-    def getLoss(self, images, captions, category, clip_model):
+    def getLoss(self, images, subject, attribute, clip_model):
         with torch.no_grad():
             img_global_feat = clip_model.encode_image(images)  # [batch_size, 768]
             img_patch_feats = get_img_patch_feats(images, clip_model)  # [batch_size, channel_dim, feature_dim]
@@ -272,12 +273,13 @@ class IMG2TEXT(nn.Module):
         img_attr_tokens = self.phi_a(img_salient_local_feats)
 
         templates = self.get_templates(local_attr_num)
-        pseudo_word_based_feat = token_replace(local_attr_num, templates, img_subj_token, img_attr_tokens, clip_model, 0)
+        pseudo_word_based_feat = token_replace(local_attr_num, templates, img_subj_token, img_attr_tokens, clip_model,
+                                               0)
 
         # compute the total loss
         img_text_loss = contrastive_loss(img_global_feat, pseudo_word_based_feat, self.temperature)
         ortho_loss = self.orthogonal_loss(img_salient_local_feats)
-        reg_loss = self.semanic_regularization_loss(category, captions, pseudo_word_based_feat, img_subj_token, img_attr_tokens,
-                                            clip_model, local_attr_num)
+        reg_loss = self.semanic_regularization_loss(subject, attribute, pseudo_word_based_feat, img_subj_token,
+                                                    img_attr_tokens, clip_model, local_attr_num)
         total_loss = img_text_loss + ortho_loss + self.hy_regLoss * reg_loss
         return total_loss

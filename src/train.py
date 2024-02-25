@@ -97,7 +97,7 @@ def create_model_and_optimizer():
     if args.pre_dataset == "ImageNetDataset":
         dataset = ImageNetDataset(args.ImageNetPath, preprocess)
     else:
-        raise ValueError(f"pre_dataset should be either Coco2017 or ImageNetPath or fashionGen, got {args.pre_dataset}")
+        raise ValueError(f"pre_dataset should be ImageNetPath, got {args.pre_dataset}")
 
     train_dataloader = DataLoader(dataset=dataset, batch_size=args.batch_size,
                                   num_workers=args.num_workers, pin_memory=True, drop_last=True, shuffle=True)
@@ -118,11 +118,11 @@ def train(img2text, clip_model, optimizer, train_dataloader, scaler):
         for batch_idx, batch in enumerate(train_dataloader):
             optimizer.zero_grad()
             images = batch.get('image').cuda()
-            captions = batch.get('caption')
-            category = batch.get('category')
+            subject = batch.get('subject')
+            attribute = batch.get('attribute')
 
             with autocast():
-                total_loss = img2text.getLoss(images, captions, category, clip_model)
+                total_loss = img2text.getLoss(images, subject, attribute, clip_model)
 
             scaler.scale(total_loss).backward()
             scaler.step(optimizer)

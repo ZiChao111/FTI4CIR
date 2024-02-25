@@ -405,19 +405,19 @@ class ImageNetDataset(Dataset):
         self.path = dataPath
         self.transform = preprocess
 
-        with open("img_data_split_10_new.json", 'r') as f:
+        with open("./img_caption_pair_blip.json", 'r') as f:
             self.img_data = json.load(f)
 
     def __getitem__(self, index):
         img_id = self.img_data[index]["img_id"]
-        caption = self.img_data[index]["caption"]
-        category = self.img_data[index]["category"]
+        subject = self.img_data[index]["subject"]
+        attribute = self.img_data[index]["attribute"]
         image = self.get_img(img_id)
         return {
             'image': image,
             'image_id': img_id,
-            'caption': caption,
-            'category': category
+            'subject': subject,
+            'attribute': attribute
         }
 
     def get_img(self, img_id):
