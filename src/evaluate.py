@@ -352,17 +352,16 @@ def circo_val_retrieval(datapath, clip_model, img2text, preprocess):
 def main():
     global preprocess
     parser = ArgumentParser()
-    parser.add_argument("--dataset", type=str, required=True, choices=['cirr', 'fashioniq', 'circo'],
+    parser.add_argument("--dataset", type=str, choices=['cirr', 'fashioniq', 'circo'], default="fashioniq",
                         help="Dataset to use")
     # test dataset path
-    parser.add_argument('--Fashion_IQ_path', type=str, default="")
-    parser.add_argument('--CIRR_path', type=str, default="")
-    parser.add_argument('--CIRCO_path', type=str, default="")
+    parser.add_argument('--Fashion_IQ_path', type=str, default="/home/share/linhaoqiang/dataset/fashion_iq_data/")
+    parser.add_argument('--CIRR_path', type=str, default="/home/share/linhaoqiang/dataset/CIRR/")
+    parser.add_argument('--CIRCO_path', type=str, default="/home/share/linhaoqiang/dataset/CIRCO/")
 
-    parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--preprocess_type', type=str, default="targetpad")
+    parser.add_argument("--save_path", type=str, default="/home/share/linhaoqiang/FTI4CIR/model_test/")
     parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')
-    parser.add_argument("--model_path", type=str, required=True, default="")
 
     args = parser.parse_args()
 
@@ -380,7 +379,6 @@ def main():
 
     # load img2text model
     img2text = torch.load(args.model_path)
-
     img2text.eval()
 
     if args.dataset.lower() == 'fashioniq':

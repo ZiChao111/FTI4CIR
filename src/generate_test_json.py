@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 
-from utils import extract_index_features, collate_fn, device, targetpad_transform
+from utils import collate_fn, device
 
 
 @torch.no_grad()

@@ -24,9 +24,10 @@ parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')  # 'ViT-B
 parser.add_argument('--test_dataset', type=str, default="fashioniq")  # cirr or fashioniq or circo
 parser.add_argument('--pre_dataset', type=str, default="ImageNetDataset")  # ImageNetDataset
 parser.add_argument('--seed', type=int, default=42)
-parser.add_argument('--ImageNetPath', type=str, default="")
+parser.add_argument('--ImageNetPath', type=str, default="/home/share/linhaoqiang/dataset/ImageNet2012/")
+parser.add_argument('--imgCaptionPath', type=str, default="./img_caption_pair_blip.json")
 
-parser.add_argument('--model_dir', default='./model_L14',
+parser.add_argument('--model_dir', default='./model_test',
                     help="Directory containing params.json")
 parser.add_argument('--num_workers', type=int, default=8)
 parser.add_argument('--preprocess_type', type=str, default="targetpad")
@@ -35,7 +36,6 @@ parser.add_argument("--validation_frequency", default=1, type=int, help="Validat
 parser.add_argument("--save_training", default=True, type=bool, help="Whether save the model checkpoints or not")
 parser.add_argument("--save_frequency", default=1, type=int, help="Saving frequency expressed in epochs")
 
-# FTI4CIR network paremeter
 parser.add_argument('--batch_size', type=int, default=256)
 parser.add_argument('--num_epochs', type=int, default=120)
 parser.add_argument('--eps', type=float, default=1e-8)
@@ -95,7 +95,7 @@ def create_model_and_optimizer():
 
     # define dataset and dataloader
     if args.pre_dataset == "ImageNetDataset":
-        dataset = ImageNetDataset(args.ImageNetPath, preprocess)
+        dataset = ImageNetDataset(args.imgCaptionPath, args.ImageNetPath, preprocess)
     else:
         raise ValueError(f"pre_dataset should be ImageNetPath, got {args.pre_dataset}")
 

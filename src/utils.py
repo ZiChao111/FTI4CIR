@@ -21,7 +21,7 @@ def _convert_image_to_rgb(image):
 
 def extract_index_features(dataset, clip_model):
     """
-    Extract FashionIQ or CIRR index features
+    Extract FashionIQ or CIRR or CIRCOindex features
     :param dataset: FashionIQ or CIRR or CIRCO dataset in 'classic' mode
     :param clip_model: CLIP model
     :return: a tensor of features and a list of images
@@ -97,19 +97,6 @@ def targetpad_transform(target_ratio: float, dim: int) -> torch.Tensor:
     ])
 
 
-def save_dict_to_json(d, json_path):
-    """Saves dict of floats in json file
-
-    Args:
-        d: (dict) of float-castable values (np.float, int, float, etc.)
-        json_path: (string) path to json file
-    """
-    with open(json_path, 'w') as f:
-        # We need to convert the values to float for json (it doesn't accept np.array, np.float, )
-        d = {k: float(v) for k, v in d.items()}
-        json.dump(d, f, indent=4)
-
-
 class RunningAverage:
     """A simple class that maintains the running average of a quantity"""
 
@@ -123,3 +110,16 @@ class RunningAverage:
 
     def __call__(self):
         return self.total / float(self.steps)
+
+
+def save_dict_to_json(d, json_path):
+    """Saves dict of floats in json file
+
+    Args:
+        d: (dict) of float-castable values (np.float, int, float, etc.)
+        json_path: (string) path to json file
+    """
+    with open(json_path, 'w') as f:
+        # We need to convert the values to float for json (it doesn't accept np.array, np.float, )
+        d = {k: float(v) for k, v in d.items()}
+        json.dump(d, f, indent=4)

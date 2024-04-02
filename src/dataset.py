@@ -264,7 +264,8 @@ class CIRCODataset(Dataset):
             - ['reference_image', 'reference_name', 'relative_captions', 'shared_concept', 'query_id'] when split == test
     """
 
-    def __init__(self, dataPath, split: Literal['val', 'test'], mode: Literal['relative', 'classic'], preprocess: callable):
+    def __init__(self, dataPath, split: Literal['val', 'test'], mode: Literal['relative', 'classic'],
+                 preprocess: callable):
         """
         Args:
             dataset_path (Union[str, Path]): path to CIRCO dataset
@@ -401,12 +402,13 @@ class CIRCODataset(Dataset):
 
 class ImageNetDataset(Dataset):
 
-    def __init__(self, dataPath, preprocess):
-        self.path = dataPath
+    def __init__(self, img_sa_path, img_path, preprocess):
+        self.path = img_path
         self.transform = preprocess
 
-        with open("./img_caption_pair_blip.json", 'r') as f:
+        with open(img_sa_path, 'r') as f:
             self.img_data = json.load(f)
+        print("img_data", len(self.img_data))
 
     def __getitem__(self, index):
         img_id = self.img_data[index]["img_id"]
@@ -431,4 +433,3 @@ class ImageNetDataset(Dataset):
 
     def __len__(self):
         return len(self.img_data)
-

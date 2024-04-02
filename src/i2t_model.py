@@ -27,12 +27,12 @@ class Phi(nn.Module):
         return self.layers(x)
 
 
-def token_replace(local_attr_num, text, img_subj_token, img_attr_tokens, clip_model, type=0):
+def token_replace(local_attr_num, text, img_subj_token, img_attr_tokens, clip_model, map_type=0):
     """
     Replace symbols * with subject-oriented pseudo-word token or attribute-oriented pseudo-word token:
-    type=0,replace both
-    type=1,replace * with subject-oriented pseudo-word token
-    type=2,replace [*,...,*] with several attribute-oriented pseudo-word tokens
+    map_type=0,replace both
+    map_type=1,replace * with subject-oriented pseudo-word token
+    map_type=2,replace [*,...,*] with several attribute-oriented pseudo-word tokens
     """
 
     img_subj_token = img_subj_token.view(img_subj_token.shape[0], 1, -1)
@@ -43,10 +43,11 @@ def token_replace(local_attr_num, text, img_subj_token, img_attr_tokens, clip_mo
     collect_ind = text == end_id
     collect_ind = collect_ind.nonzero()[:, 1]
     bs = x.shape[0]
-    if type == 0 or type == 1:
+
+    if map_type == 0 or map_type == 1:
         ind_insert = text[0] == split_ind
         ind_insert = ind_insert.nonzero()[0]
-        if type == 0:
+        if map_type == 0:
             for i in range(bs):
                 # get selected attribute-oriented pseudo-word token
                 selected_local_tokens = img_attr_tokens[i, :local_attr_num[i], :]
@@ -54,7 +55,7 @@ def token_replace(local_attr_num, text, img_subj_token, img_attr_tokens, clip_mo
                     [x[i][:ind_insert], img_subj_token[i], x[i][ind_insert + 1],
                      selected_local_tokens,
                      x[i][ind_insert + local_attr_num[i] + 2:]], dim=0)
-        elif type == 1:
+        elif map_type == 1:
             # replace * with subject-oriented pseudo-word token
             x = torch.cat(
                 [x[:, :ind_insert], img_subj_token, x[:, ind_insert + 1:]], dim=1)
@@ -109,7 +110,6 @@ def get_img_patch_feats(img, clip_model):
 
 
 def contrastive_loss(v1, v2, temperature: float):
-    # Based on https://github.com/NVlabs/PALAVRA/blob/main/utils/nv.py
     v1 = F.normalize(v1, dim=1)
     v2 = F.normalize(v2, dim=1)
 
@@ -192,10 +192,13 @@ class IMG2TEXT(nn.Module):
         return F.normalize(selected_local_feats, dim=-1), local_attr_num
 
     def img_to_text(self, img, clip_model, modification_text):
+        # inference
         with torch.no_grad():
+            # Extract global and patch features from the image
             img_global_feat = clip_model.encode_image(img)
             img_patch_feats = get_img_patch_feats(img, clip_model)
 
+            # Get local attribute features and count
             img_local_attr_feat, local_attr_num = self.get_img_local_attr_feats(img_global_feat, img_patch_feats)
             img_subj_token = self.phi_s(img_global_feat)
             img_attr_tokens = self.phi_a(img_local_attr_feat)
@@ -203,10 +206,13 @@ class IMG2TEXT(nn.Module):
             text_list = []
             bs = img_global_feat.shape[0]
             for i in range(bs):
+                # Generate the composed description for each image
                 text = f"a photo of * with {'* ' * local_attr_num[i]}but " + modification_text[i]
                 text_list.append(text)
 
+            # Tokenize the composed description
             text = clip.tokenize(text_list, truncate=True).cuda(non_blocking=True)
+            # Replace tokens to obtain pseudo-word-based features
             pseudo_word_based_feat = token_replace(local_attr_num, text, img_subj_token, img_attr_tokens, clip_model, 0)
         return pseudo_word_based_feat
 
@@ -214,8 +220,11 @@ class IMG2TEXT(nn.Module):
         # Orthogonal loss
         batch_size, length, dim = img_salient_local_feats.size()
         img_salient_local_feats = F.normalize(img_salient_local_feats, p=2, dim=-1)
+
         cosine_score = torch.matmul(img_salient_local_feats, img_salient_local_feats.permute(0, 2, 1))
+
         eye_matrix = torch.eye(length).unsqueeze(0).repeat(batch_size, 1, 1).to(img_salient_local_feats.device)
+
         return self.ortho_loss(cosine_score, eye_matrix)
 
     def cosine_loss(self, pseudo_word_based_feat, img_global_feat):
@@ -224,7 +233,7 @@ class IMG2TEXT(nn.Module):
 
     def semanic_regularization_loss(self, subject, attribute, pseudo_word_based_feat, img_subj_token, img_attr_tokens,
                                     clip_model, local_attr_num):
-
+        # Generate text inputs for regularization loss
         t_both = ["a photo of " + subject[s_id] + " with " + attribute[s_id] for s_id in range(len(attribute))]
         t_subj = ["a photo of * with " + attribute[s_id] for s_id in range(len(attribute))]
 
@@ -234,18 +243,20 @@ class IMG2TEXT(nn.Module):
             text = f"a photo of " + subject[i] + " with " + f"{'* ' * local_attr_num[i]}"
             t_attr.append(text)
 
+        # Tokenize text inputs
         t_both = clip.tokenize(t_both, truncate=True).cuda(non_blocking=True)
         t_subj = clip.tokenize(t_subj, truncate=True).cuda(non_blocking=True)
         t_attr = clip.tokenize(t_attr, truncate=True).cuda(non_blocking=True)
 
+        # Encode text inputs using the clip model
         with torch.no_grad():
             t_both_feat = clip_model.encode_text(t_both)
 
-        t_subject_feat = token_replace(local_attr_num, t_subj, img_subj_token, img_attr_tokens,
-                                       clip_model, 1)
-        t_attribute_feat = token_replace(local_attr_num, t_attr, img_subj_token, img_attr_tokens,
-                                         clip_model, 2)
+        # Replace tokens in subject and attribute text inputs
+        t_subject_feat = token_replace(local_attr_num, t_subj, img_subj_token, img_attr_tokens, clip_model, 1)
+        t_attribute_feat = token_replace(local_attr_num, t_attr, img_subj_token, img_attr_tokens, clip_model, 2)
 
+        # Calculate cosine losses
         reg_attribute_loss = self.cosine_loss(t_attribute_feat, t_both_feat)
         reg_subject_loss = self.cosine_loss(t_subject_feat, t_both_feat)
         reg_both_loss = self.cosine_loss(pseudo_word_based_feat, t_both_feat)
@@ -283,3 +294,4 @@ class IMG2TEXT(nn.Module):
                                                     img_attr_tokens, clip_model, local_attr_num)
         total_loss = img_text_loss + ortho_loss + self.hy_regLoss * reg_loss
         return total_loss
+
