@@ -116,18 +116,74 @@ After downloading the dataset, ensure that the folder structure matches the foll
 
 ### Pre-training Phase
 
+### Sample running code for training:
 
+```bash
+python train.py \
+    --save-frequency 1 \
+    --batch-size=256 \
+    --lr=4e-5 \
+    --wd=0.01 \
+    --epochs=60 \
+    --model-dir="./model_save" \
+    --workers=8 \
+    --model ViT-L/14
+```
 
 ### Inference Phase
 
-#### Validation Set Evaluation (split=val)
+#### Validation (split=val)
+
+Evaluation on FashionIQ, CIRR, or CIRCO.
+
+```sh
+python evaluate.py \
+    --dataset='cirr' \
+    --save-path='' \
+    --model-path="" \
+    --CIRR-path="" \
+    --CIRCO-path="" \
+```
+
+```
+    --dataset <str>                 Dataset to use, options: ['cirr', 'circo']
+    --CIRR-path <str>               Path to the CIRR dataset root folder
+    --CIRCO-path <str>              Path to the CIRCO dataset root folder
+    --model-path <str>              Path of the pre-trained model
+    --save-path <str>               Path to save the predictions file
+```
 
 
-#### Test Set Evaluation (split=test)
+</details>
+
+#### Test (split=test)
+
+To generate the predictions file for uploading on the [CIRR Evaluation Server](https://cirr.cecs.anu.edu.au/) or the [CIRCO Evaluation Server](https://circo.micc.unifi.it/) using the our model, please execute the following command:
+
+```sh
+python test.py \
+    --dataset='cirr' \
+    --save-path='' \
+    --model-path="" \
+    --CIRR-path="" \
+    --CIRCO-path="" \
+```
+
+```
+    --dataset <str>                 Dataset to use, options: ['cirr', 'circo']
+    --CIRR-path <str>               Path to the CIRR dataset root folder
+    --CIRCO-path <str>              Path to the CIRCO dataset root folder
+    --model-path <str>              Path of the pre-trained model
+    --save-path <str>               Path to save the predictions file
+```
+
+
+</details>
+
+
 
 
 ### Acknowledgement
-
 
 
 
