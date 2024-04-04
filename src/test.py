@@ -15,9 +15,9 @@ def main():
     parser.add_argument("--dataset", type=str, choices=['cirr', 'fashioniq', 'circo'], default="fashioniq",
                         help="Dataset to use")
     # test dataset path
-    parser.add_argument('--Fashion_IQ_path', type=str, default="/home/share/linhaoqiang/dataset/fashion_iq_data/")
-    parser.add_argument('--CIRR_path', type=str, default="/home/share/linhaoqiang/dataset/CIRR/")
-    parser.add_argument('--CIRCO_path', type=str, default="/home/share/linhaoqiang/dataset/CIRCO/")
+    parser.add_argument('--Fashion_IQ_path', type=str, default="")
+    parser.add_argument('--CIRR_path', type=str, default="")
+    parser.add_argument('--CIRCO_path', type=str, default="")
 
     parser.add_argument('--preprocess_type', type=str, default="targetpad")
     parser.add_argument("--save_path", type=str, default="/home/share/linhaoqiang/FTI4CIR/model_test/")

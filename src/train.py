@@ -24,7 +24,7 @@ parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')  # 'ViT-B
 parser.add_argument('--test_dataset', type=str, default="fashioniq")  # cirr or fashioniq or circo
 parser.add_argument('--pre_dataset', type=str, default="ImageNetDataset")  # ImageNetDataset
 parser.add_argument('--seed', type=int, default=42)
-parser.add_argument('--ImageNetPath', type=str, default="/home/share/linhaoqiang/dataset/ImageNet2012/")
+parser.add_argument('--ImageNetPath', type=str, default="")
 parser.add_argument('--imgCaptionPath', type=str, default="./img_caption_pair_blip.json")
 
 parser.add_argument('--model_dir', default='./model_test',

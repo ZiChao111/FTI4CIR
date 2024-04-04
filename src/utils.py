@@ -8,6 +8,7 @@ from tqdm import tqdm
 from torchvision.transforms import Compose, CenterCrop, ToTensor, Normalize, Resize
 from torchvision.transforms import InterpolationMode
 from dataset import FashionIQDataset
+import torch.nn.functional as F
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -42,6 +43,103 @@ def extract_index_features(dataset, clip_model):
             index_features = torch.vstack((index_features, batch_features))
             index_names.extend(names)
     return index_features, index_names
+
+
+def get_img_patch_feats(img, clip_model):
+    """
+        Get the output of second-to-last layer of CLIP visual encoder
+    """
+
+    with torch.no_grad():
+        x = clip_model.visual.conv1(img)
+        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
+        x = torch.cat([clip_model.visual.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1],
+                                                                                   dtype=x.dtype, device=x.device), x],
+                      dim=1)  # shape = [*, grid ** 2 + 1, width]
+        x = x + clip_model.visual.positional_embedding.to(x.dtype)
+        x = clip_model.visual.ln_pre(x)
+
+        x = x.permute(1, 0, 2)  # NLD -> LND
+
+        layer = clip_model.visual.transformer.layers - 1
+
+        for i in range(layer):
+            x = clip_model.visual.transformer.resblocks[i](x)
+        clip_last_layer = clip_model.visual.transformer.resblocks[layer]
+
+        x = x + clip_last_layer.attn(clip_last_layer.ln_1(x), clip_last_layer.ln_1(x), clip_last_layer.ln_1(x),
+                                     need_weights=False, attn_mask=None)[0]
+        x = x + clip_last_layer.mlp(clip_last_layer.ln_2(x))
+
+        x = x.permute(1, 0, 2)  # LND -> NLD  [batchsize, 257, 1024]
+
+    return x
+
+
+def contrastive_loss(v1, v2, temperature: float):
+    v1 = F.normalize(v1, dim=1)
+    v2 = F.normalize(v2, dim=1)
+
+    numerator = torch.exp(torch.diag(torch.inner(v1, v2)) / temperature)
+    numerator = torch.cat((numerator, numerator), 0)
+    joint_vector = torch.cat((v1, v2), 0)
+    pairs_product = torch.exp(torch.mm(joint_vector, joint_vector.t()) / temperature)
+    denominator = torch.sum(pairs_product - pairs_product * torch.eye(joint_vector.shape[0]).to(v2.device), 0)
+
+    loss = -torch.mean(torch.log(numerator / denominator))
+
+    return loss
+
+
+def token_replace(local_attr_num, text, img_subj_token, img_attr_tokens, clip_model, map_type=0):
+    """
+    Replace symbols * with subject-oriented pseudo-word token or attribute-oriented pseudo-word token:
+    map_type=0,replace both
+    map_type=1,replace * with subject-oriented pseudo-word token
+    map_type=2,replace [*,...,*] with several attribute-oriented pseudo-word tokens
+    """
+
+    img_subj_token = img_subj_token.view(img_subj_token.shape[0], 1, -1)
+
+    split_ind = clip.tokenize(["*"])[0][1]
+    end_id = clip_model.vocab_size - 1
+    x = clip_model.token_embedding(text).type(clip_model.dtype)  # [batch_size, n_ctx, d_model]
+    collect_ind = text == end_id
+    collect_ind = collect_ind.nonzero()[:, 1]
+    bs = x.shape[0]
+
+    if map_type == 0 or map_type == 1:
+        ind_insert = text[0] == split_ind
+        ind_insert = ind_insert.nonzero()[0]
+        if map_type == 0:
+            for i in range(bs):
+                # get selected attribute-oriented pseudo-word token
+                selected_local_tokens = img_attr_tokens[i, :local_attr_num[i], :]
+                x[i] = torch.cat(
+                    [x[i][:ind_insert], img_subj_token[i], x[i][ind_insert + 1],
+                     selected_local_tokens,
+                     x[i][ind_insert + local_attr_num[i] + 2:]], dim=0)
+        elif map_type == 1:
+            # replace * with subject-oriented pseudo-word token
+            x = torch.cat(
+                [x[:, :ind_insert], img_subj_token, x[:, ind_insert + 1:]], dim=1)
+    else:
+        for i in range(bs):
+            # replace [*,...,*] with several attribute-oriented pseudo-word tokens
+            ind_insert = text[i] == split_ind
+            ind_insert = ind_insert.nonzero()[0]
+            selected_local_tokens = img_attr_tokens[i, :local_attr_num[i], :]
+            x[i] = torch.cat([x[i][:ind_insert], selected_local_tokens, x[i][ind_insert + local_attr_num[i]:]],
+                             dim=0)
+
+    x = x + clip_model.positional_embedding.type(clip_model.dtype)
+    x = x.permute(1, 0, 2)  # NLD -> LND
+    x = clip_model.transformer(x)
+    x = x.permute(1, 0, 2)  # LND -> NLD
+    x = clip_model.ln_final(x).type(clip_model.dtype)
+    x = x[torch.arange(x.size(0)), collect_ind] @ clip_model.text_projection
+    return x
 
 
 def collate_fn(batch: list):

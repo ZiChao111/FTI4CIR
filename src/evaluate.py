@@ -336,7 +336,7 @@ def circo_val_retrieval(datapath, clip_model, img2text, preprocess):
     Compute the retrieval metrics on the CIRCO validation set given the pseudo tokens and the reference names
     """
     # Load the model
-    clip_model = clip_model.float().eval().requires_grad_(False)
+    clip_model = clip_model.float().eval()
     img2text.eval()
 
     # Extract the index features
@@ -355,12 +355,12 @@ def main():
     parser.add_argument("--dataset", type=str, choices=['cirr', 'fashioniq', 'circo'], default="fashioniq",
                         help="Dataset to use")
     # test dataset path
-    parser.add_argument('--Fashion_IQ_path', type=str, default="/home/share/linhaoqiang/dataset/fashion_iq_data/")
-    parser.add_argument('--CIRR_path', type=str, default="/home/share/linhaoqiang/dataset/CIRR/")
-    parser.add_argument('--CIRCO_path', type=str, default="/home/share/linhaoqiang/dataset/CIRCO/")
+    parser.add_argument('--Fashion_IQ_path', type=str, default="")
+    parser.add_argument('--CIRR_path', type=str, default="")
+    parser.add_argument('--CIRCO_path', type=str, default="")
 
     parser.add_argument('--preprocess_type', type=str, default="targetpad")
-    parser.add_argument("--save_path", type=str, default="/home/share/linhaoqiang/FTI4CIR/model_test/")
+    parser.add_argument("--save_path", type=str, default="")
     parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')
 
     args = parser.parse_args()
@@ -400,17 +400,11 @@ def main():
         average_recall10_list.append(toptee_recallat10)
         average_recall50_list.append(toptee_recallat50)
 
-        print(f"\n{dress_recallat10 = }")
-        print(f"{dress_recallat50 = }")
-
-        print(f"{shirt_recallat10 = }")
-        print(f"{shirt_recallat50 = }")
-
-        print(f"{toptee_recallat10 = }")
-        print(f"{toptee_recallat50 = }")
-
-        print(f"average recall10 = {mean(average_recall10_list)}")
-        print(f"average recall50 = {mean(average_recall50_list)}")
+        metrics = {"dress_10": dress_recallat10, "dress_50": dress_recallat50,
+                   "shirt_10": shirt_recallat10, "shirt_50": shirt_recallat50,
+                   "toptee_10": toptee_recallat10, "toptee_50": toptee_recallat50,
+                   "average_10": mean(average_recall10_list), "average_50": mean(average_recall50_list)}
+        print(metrics)
     elif args.dataset.lower() == 'cirr':
         metrics = cirr_val_retrieval(args.CIRR_path, clip_model, img2text, preprocess)
         print(metrics)
