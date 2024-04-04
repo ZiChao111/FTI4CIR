@@ -119,7 +119,7 @@ After downloading the dataset, ensure that the folder structure matches the foll
 ### Sample running code for training:
 
 ```bash
-python train.py \
+python src/train.py \
     --save-frequency 1 \
     --batch-size=256 \
     --lr=4e-5 \
@@ -137,7 +137,7 @@ python train.py \
 Evaluation on FashionIQ, CIRR, or CIRCO.
 
 ```sh
-python evaluate.py \
+python src/evaluate.py \
     --dataset='cirr' \
     --save-path='' \
     --model-path="" \
@@ -161,7 +161,7 @@ python evaluate.py \
 To generate the predictions file for uploading on the [CIRR Evaluation Server](https://cirr.cecs.anu.edu.au/) or the [CIRCO Evaluation Server](https://circo.micc.unifi.it/) using the our model, please execute the following command:
 
 ```sh
-python test.py \
+python src/test.py \
     --dataset='cirr' \
     --save-path='' \
     --model-path="" \
