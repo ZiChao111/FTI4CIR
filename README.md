@@ -55,8 +55,14 @@ After downloading the dataset, ensure that the folder structure matches the foll
 |   |   ├── split.toptee.[train | val | test].json
 |   |   ├── split.shirt.[train | val | test].json
 
-│   ├── images
+│   ├── dress
+|   |   ├── [B000ALGQSY.jpg | B000AY2892.jpg | B000AYI3L4.jpg |...]
+
+│   ├── shirt
 |   |   ├── [B00006M009.jpg | B00006M00B.jpg | B00006M6IH.jpg | ...]
+
+│   ├── toptee
+|   |   ├── [B0000DZQD6.jpg | B000A33FTU.jpg | B000AS2OVA.jpg | ...]
 ```
 
 #### CIRR
