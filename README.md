@@ -12,12 +12,12 @@ This is an open-source implementation of the paper "Fine-grained Textual Inversi
 git clone https://github.com/ZiChao111/FTI4CIR.git
 ```
 
-2. Install Python dependencies
+2. Running Environment
 
 ```sh
-conda create -n FTI4CIR -y python=3.9
-conda activate FTI4CIR
-
+Platform: NVIDIA A100 40G
+Python  3.9.12
+Pytorch  2.2.0
 ```
 
 
