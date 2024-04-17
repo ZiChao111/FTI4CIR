@@ -357,7 +357,7 @@ def main():
 
     parser.add_argument('--preprocess_type', type=str, default="targetpad")
     parser.add_argument("--save_path", type=str, default="./save_path")
-    parser.add_argument("--model_path", type=str, default="./save_model/img2text_model.pth")
+    parser.add_argument("--model_path", type=str, default="./save_model/FTI4CIR_model.pth")
     parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')
 
     args = parser.parse_args()
