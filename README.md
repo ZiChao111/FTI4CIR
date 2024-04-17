@@ -31,7 +31,7 @@ the [**official site**](https://image-net.org/index.php).
 After downloading the dataset, ensure that the folder structure matches the following:
 
 ```
-├── ImageNet1K
+├── ImageNet
 │   ├── test
 |   |   ├── [ILSVRC2012_test_[00000001 | ... | 00100000].JPEG]
 ```
