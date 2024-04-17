@@ -24,7 +24,7 @@ parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')  # "ViT-L
 parser.add_argument('--pre_dataset', type=str, default="ImageNetDataset")  # ImageNetDataset
 parser.add_argument('--seed', type=int, default=42)
 parser.add_argument('--ImageNetPath', type=str, default="/data/ImageNet/")
-parser.add_argument('--imgCaptionPath', type=str, default="./data/img_caption_pair_blip.json")
+parser.add_argument('--imgCaptionPath', type=str, default="./blip_pairs.json")
 
 parser.add_argument('--model_dir', default='./save_model',
                     help="Directory containing params.json")
