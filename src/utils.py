@@ -9,6 +9,7 @@ from torchvision.transforms import Compose, CenterCrop, ToTensor, Normalize, Res
 from torchvision.transforms import InterpolationMode
 from dataset import FashionIQDataset
 import torch.nn.functional as F
+import clip
 
 if torch.cuda.is_available():
     device = torch.device("cuda")

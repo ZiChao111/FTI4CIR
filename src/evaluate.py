@@ -1,14 +1,10 @@
-import multiprocessing
 from argparse import ArgumentParser
-from operator import itemgetter
-from pathlib import Path
 from statistics import mean
 from typing import List, Tuple
 
 import clip
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from clip.model import CLIP
 from torch.utils.data import DataLoader
@@ -355,12 +351,13 @@ def main():
     parser.add_argument("--dataset", type=str, choices=['cirr', 'fashioniq', 'circo'], default="fashioniq",
                         help="Dataset to use")
     # test dataset path
-    parser.add_argument('--Fashion_IQ_path', type=str, default="")
-    parser.add_argument('--CIRR_path', type=str, default="")
-    parser.add_argument('--CIRCO_path', type=str, default="")
+    parser.add_argument('--Fashion_IQ_path', type=str, default="/data/FashionIQ/")
+    parser.add_argument('--CIRR_path', type=str, default="/data/CIRR/")
+    parser.add_argument('--CIRCO_path', type=str, default="/data/CIRCO/")
 
     parser.add_argument('--preprocess_type', type=str, default="targetpad")
-    parser.add_argument("--save_path", type=str, default="")
+    parser.add_argument("--save_path", type=str, default="./save_path")
+    parser.add_argument("--model_path", type=str, default="./save_model/img2text_model.pth")
     parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')
 
     args = parser.parse_args()

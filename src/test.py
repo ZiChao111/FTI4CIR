@@ -15,12 +15,13 @@ def main():
     parser.add_argument("--dataset", type=str, choices=['cirr', 'fashioniq', 'circo'], default="fashioniq",
                         help="Dataset to use")
     # test dataset path
-    parser.add_argument('--Fashion_IQ_path', type=str, default="")
-    parser.add_argument('--CIRR_path', type=str, default="")
-    parser.add_argument('--CIRCO_path', type=str, default="")
+    parser.add_argument('--Fashion_IQ_path', type=str, default="/data/FashionIQ/")
+    parser.add_argument('--CIRR_path', type=str, default="/data/CIRR/")
+    parser.add_argument('--CIRCO_path', type=str, default="/data/CIRCO/")
 
     parser.add_argument('--preprocess_type', type=str, default="targetpad")
-    parser.add_argument("--save_path", type=str, default="/home/share/linhaoqiang/FTI4CIR/model_test/")
+    parser.add_argument("--save_path", type=str, default="./save_model")
+    parser.add_argument("--model_path", type=str, default="./save_model/img2text_model.pth")
     parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')
 
     args = parser.parse_args()
@@ -72,8 +73,7 @@ def main():
         raise ValueError("Dataset not supported")
 
     # load the model
-    model_path = args.save_path + f"img2text_model.pth"
-    img2text = torch.load(model_path)
+    img2text = torch.load(args.model_path)
     img2text.eval()
 
     # load dataset

@@ -20,14 +20,13 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--optimizer', default='adam')
-parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')  # 'ViT-B/32'  "ViT-L/14"
-parser.add_argument('--test_dataset', type=str, default="fashioniq")  # cirr or fashioniq or circo
+parser.add_argument('--clip_model_name', type=str, default='ViT-L/14')  # "ViT-L/14"
 parser.add_argument('--pre_dataset', type=str, default="ImageNetDataset")  # ImageNetDataset
 parser.add_argument('--seed', type=int, default=42)
 parser.add_argument('--ImageNetPath', type=str, default="")
-parser.add_argument('--imgCaptionPath', type=str, default="./img_caption_pair_blip.json")
+parser.add_argument('--imgCaptionPath', type=str, default="./data/img_caption_pair_blip.json")
 
-parser.add_argument('--model_dir', default='./model_test',
+parser.add_argument('--model_dir', default='./save_model',
                     help="Directory containing params.json")
 parser.add_argument('--num_workers', type=int, default=8)
 parser.add_argument('--preprocess_type', type=str, default="targetpad")
@@ -37,7 +36,7 @@ parser.add_argument("--save_training", default=True, type=bool, help="Whether sa
 parser.add_argument("--save_frequency", default=1, type=int, help="Saving frequency expressed in epochs")
 
 parser.add_argument('--batch_size', type=int, default=256)
-parser.add_argument('--num_epochs', type=int, default=120)
+parser.add_argument('--num_epochs', type=int, default=80)
 parser.add_argument('--eps', type=float, default=1e-8)
 parser.add_argument('--tf_layer', type=int, default=3)
 parser.add_argument('--tf_head', type=int, default=1)
