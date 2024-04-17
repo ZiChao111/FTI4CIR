@@ -112,7 +112,10 @@ After downloading the dataset, ensure that the folder structure matches the foll
 
 ### Caption Generation
 
+```bash
+python blip_caption.py
 
+```
 
 ### Pre-training Phase
 
