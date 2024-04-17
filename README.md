@@ -108,6 +108,9 @@ After downloading the dataset, ensure that the folder structure matches the foll
 |   |   |   ├── [000000243611.jpg | 000000535009.jpg | ...]
 ```
 
+### Pre-trained model
+
+The model is available in [GoogleDrive](https://drive.google.com/file/d/1WYeBONqZX78IbJ8Jd4qtzZ1zy_ekX-i2/view?usp=sharing).
 
 
 ### Caption Generation
