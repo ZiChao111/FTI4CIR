@@ -147,7 +147,7 @@ def train_and_evaluate(img2text, clip_model, train_dataloader, optimizer):
                 model_path = args.model_dir + "/save_model"
                 submissions_folder_path = Path(model_path)
                 submissions_folder_path.mkdir(exist_ok=True, parents=True)
-                torch.save(img2text, os.path.join(model_path, f"img2text_model_{epoch}.pth"))
+                torch.save(img2text, os.path.join(model_path, f"model_{epoch}.pth"))
 
 
 if __name__ == '__main__':
