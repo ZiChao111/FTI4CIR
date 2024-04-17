@@ -114,7 +114,8 @@ After downloading the dataset, ensure that the folder structure matches the foll
 
 ```bash
 python src/blip_caption.py
---blip-model-dir="" 
+--blip-model-dir=""
+--blip-type="base" 
 ```
 
 ### Pre-training Phase
