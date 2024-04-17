@@ -141,14 +141,10 @@ python src/evaluate.py \
     --dataset='cirr' \
     --save-path='' \
     --model-path="" \
-    --CIRR-path="" \
-    --CIRCO-path="" \
 ```
 
 ```
-    --dataset <str>                 Dataset to use, options: ['cirr', 'circo']
-    --CIRR-path <str>               Path to the CIRR dataset root folder
-    --CIRCO-path <str>              Path to the CIRCO dataset root folder
+    --dataset <str>                 Dataset to use, options: ['fashioniq', 'cirr', 'circo']
     --model-path <str>              Path of the pre-trained model
     --save-path <str>               Path to save the predictions file
 ```
@@ -165,18 +161,13 @@ python src/test.py \
     --dataset='cirr' \
     --save-path='' \
     --model-path="" \
-    --CIRR-path="" \
-    --CIRCO-path="" \
 ```
 
 ```
     --dataset <str>                 Dataset to use, options: ['cirr', 'circo']
-    --CIRR-path <str>               Path to the CIRR dataset root folder
-    --CIRCO-path <str>              Path to the CIRCO dataset root folder
     --model-path <str>              Path of the pre-trained model
     --save-path <str>               Path to save the predictions file
 ```
-
 
 </details>
 
