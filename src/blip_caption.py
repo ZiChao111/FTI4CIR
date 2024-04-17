@@ -66,8 +66,8 @@ def split_caption(img_caption, nlp):
     return first_part, second_part
 
 
-def get_blip_model(model_path, image_size):
-    model = blip_decoder(pretrained=model_path, image_size=image_size, vit='base')
+def get_blip_model(model_path, blip_type, image_size):
+    model = blip_decoder(pretrained=model_path, image_size=image_size, vit=blip_type)
     model.eval()
     model = model.to(device)
 
@@ -91,9 +91,9 @@ def get_imageId_list():
     return imageId
 
 
-def caption_generation(model_path, image_path, image_size):
+def caption_generation(model_path, image_path, blip_type, image_size):
     nlp = spacy.load("en_core_web_sm")
-    model, preprocess = get_blip_model(model_path, image_size)
+    model, preprocess = get_blip_model(model_path, blip_type, image_size)
     imageId = get_imageId_list()
     img_caption_blip = []
 
@@ -119,7 +119,9 @@ def caption_generation(model_path, image_path, image_size):
 def main():
     parser = ArgumentParser()
     # test dataset path
-    parser.add_argument('--blip_model_url', type=str, default="./model_base_capfilt_large.pth")
+    parser.add_argument('--blip_model_url', type=str, default="./model_base_capfilt_large.pth") #
+    # "model_base_capfilt_large" "model_large_caption.pth" "model_base_caption_capfilt_large.pth"
+    parser.add_argument('--blip_type', type=str, default="base")
     parser.add_argument('--img_path', type=str, default="/data/ImageNet/")
     parser.add_argument('--preprocess_type', type=str, default="targetpad")
     parser.add_argument('--image_size', type=int, default=384)
@@ -136,7 +138,7 @@ def main():
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = False
 
-    img_caption_blip = caption_generation(args.model_url, args.img_path, args.image_size)
+    img_caption_blip = caption_generation(args.model_url, args.img_path, args.blip_type, args.image_size)
 
     with open("blip_pairs.json", "w") as json_file:
         json.dump(img_caption_blip, json_file)
