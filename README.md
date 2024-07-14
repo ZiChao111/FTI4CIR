@@ -183,11 +183,11 @@ python src/test.py \
 
 ```
 
-@inproceedings{fti4cir,
+@inproceedings{FTI4CIR,
   author    = {Haoqiang Lin and Haokun Wen and Xuemeng Song and Meng Liu and Yupeng Hu and Liqiang Nie},
   title     = {Fine-grained Textual Inversion Network for Zero-Shot Composed Image Retrieval},
   booktitle = {Proceedings of the International {ACM} SIGIR Conference on Research and Development in Information Retrieval},
-  pages     = {1-11},
+  pages     = {240-250},
   publisher = {{ACM}},
   year      = {2024}
 }
