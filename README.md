@@ -114,7 +114,7 @@ The model is available in [GoogleDrive](https://drive.google.com/file/d/1WYeBONq
 
 
 ### Caption Generation
-
+We generate the image captions by [BLIP](https://github.com/salesforce/BLIP).
 ```bash
 python src/blip_caption.py
 ```
