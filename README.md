@@ -113,13 +113,9 @@ After downloading the dataset, ensure that the folder structure matches the foll
 The model is available in [GoogleDrive](https://drive.google.com/file/d/1WYeBONqZX78IbJ8Jd4qtzZ1zy_ekX-i2/view?usp=sharing).
 
 
-### Caption Generation
-We generate the image captions by [BLIP](https://github.com/salesforce/BLIP).
-```bash
-python src/blip_caption.py
-```
-
 ### Pre-training Phase
+
+We generate the image captions by [BLIP](https://github.com/salesforce/BLIP).
 
 ### Sample running code for training:
 
