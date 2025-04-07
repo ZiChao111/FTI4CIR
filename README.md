@@ -1,6 +1,6 @@
 # FTI4CIR
 
-[SIGIR 2024] - Fine-grained Textual Inversion network for Zero-Shot Composed Image Retrieval (**FTI4CIR**).
+[SIGIR 2024] - Fine-grained Textual Inversion Network for Zero-Shot Composed Image Retrieval (**FTI4CIR**).
 
 ### Installation
 1. Clone the repository
