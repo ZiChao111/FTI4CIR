@@ -45,40 +45,39 @@
 
 ## Introduction
 
-本项目是论文 **Fine-grained Textual Inversion Network for Zero-Shot Composed Image Retrieval** 的官方实现，发表于 **SIGIR 2024**。
+This repository contains the official implementation of the paper **Fine-grained Textual Inversion Network for Zero-Shot Composed Image Retrieval**, published at **SIGIR 2024**.
 
-**问题背景：** Composed Image Retrieval（CIR）允许用户通过多模态查询（参考图像 + 修改文本）检索目标图像。然而，现有有监督方法依赖大量标注三元组 `<参考图, 修改文本, 目标图>`，标注代价高昂，数据集规模受限。
+**Background.** Composed Image Retrieval (CIR) enables users to retrieve target images using a multimodal query consisting of a reference image and a modification text describing the desired changes. However, existing supervised CIR methods rely heavily on expensive annotated training triplets in the form of `<reference image, modification text, target image>`, which limits dataset scale and model generalization.
 
-**方法核心：** 我们提出了 **FTI4CIR**，无需标注三元组即可完成 CIR 任务。与已有方法将图像映射为单一伪词 token 不同，FTI4CIR 将图像映射为：
-- 一个 **subject-oriented 伪词 token**（捕捉图像的主体信息）
-- 若干 **attribute-oriented 伪词 tokens**（捕捉主体的多种属性，如袖长、颜色、背景等）
+**Method.** We propose **FTI4CIR**, which addresses CIR without requiring any annotated triplets. Unlike prior methods that map an image to a single coarse-grained pseudo-word token, FTI4CIR maps each image into:
+- One **subject-oriented pseudo-word token** — capturing the primary subject(s) of the image.
+- Several **attribute-oriented pseudo-word tokens** — capturing contextual attributes such as sleeve length, color, and background.
 
-图像由此被表示为句子 `"a photo of [S*] with [A1*, ..., Ar*]"`，进而与修改文本拼接，将 CIR 转化为标准文本-图像检索任务。
+Each image is represented by the sentence `"a photo of [S*] with [A1*, ..., Ar*]"`, which is concatenated with the modification text to form a unified text query, reducing CIR to a standard text-to-image retrieval task.
 
-**关键组件：**
-1. **Fine-grained Pseudo-word Token Mapping**：基于全局特征生成 subject 伪词；通过 Transformer + 局部-全局相关性过滤策略动态提取属性特征，生成 attribute 伪词。
-2. **Tri-wise Caption-based Semantic Regularization**：利用 BLIP 生成图像的真实词描述，通过 subject-wise、attribute-wise、whole-wise 三路对齐，将伪词 token 锚定到真实词 embedding 空间。
+**Key Components.**
+1. **Fine-grained Pseudo-word Token Mapping**: Generates subject pseudo-words from global image features, and leverages a Transformer with a local-global relevance-based filtering strategy to dynamically extract attribute-oriented features.
+2. **Tri-wise Caption-based Semantic Regularization**: Employs BLIP to generate natural language descriptions and aligns pseudo-word tokens to the real-word embedding space via three complementary objectives: subject-wise, attribute-wise, and whole-wise.
 
-**实验结果：** 在 FashionIQ、CIRR、CIRCO 三个基准数据集上，FTI4CIR 均取得最优零样本性能。
+**Results.** FTI4CIR achieves state-of-the-art zero-shot performance on FashionIQ, CIRR, and CIRCO.
 
-本仓库提供：完整训练代码、推理与评测代码、预训练模型权重。
+This repository provides: full training code, inference and evaluation scripts, and pre-trained model weights.
 
 ---
 
 ## Highlights
 
-- 🆕 **首个细粒度文本反转方法**：将图像同时映射为 subject 和 attribute 伪词 token，显著超越单一伪词表示
-- 🔧 **动态属性特征提取模块**：自适应处理不同域（时尚、动物、开放域）的多样化局部属性
-- 📐 **三路语义正则化**：借助 BLIP 生成的图像描述，对伪词 token 进行 subject / attribute / whole 三级对齐
-- 🚫 **完全零样本**：训练仅使用无标注开放域图像，推理无需任何 CIR 标注三元组
-- 📊 **三数据集 SOTA**：在 FashionIQ（R@10/50）、CIRR（R@1/5/10/50）、CIRCO 上均优于已有零样本方法
+- 🆕 **First fine-grained textual inversion approach**: Maps images into both subject-oriented and attribute-oriented pseudo-word tokens, surpassing single pseudo-word representations.
+- 🔧 **Dynamic local attribute feature extraction**: Adaptively handles diverse attribute types across different domains (fashion, animals, open-domain).
+- 📐 **Tri-wise semantic regularization**: Aligns pseudo-word tokens to the real-word embedding space via subject-wise, attribute-wise, and whole-wise objectives using BLIP-generated captions.
+- 🚫 **Fully zero-shot**: Training relies solely on unlabeled open-domain images; no annotated CIR triplets are required at any stage.
+- 📊 **State-of-the-art on three benchmarks**: Outperforms all zero-shot baselines on FashionIQ (R@10/50), CIRR (R@1/5/10/50), and CIRCO.
 
 ---
 
 ## Method / Framework
 
 <img width="1662" height="524" alt="image" src="https://github.com/user-attachments/assets/b77761fd-8c5a-4709-845e-2b24b253c4a7" />
-
 
 **Figure 1.** Overall framework of FTI4CIR, consisting of (a) Fine-grained Pseudo-word Token Mapping and (b) Tri-wise Caption-based Semantic Regularization.
 
@@ -105,11 +104,11 @@ Pure Text Query → Text-to-Image Retrieval → Target Image
 
 ```text
 .
-├── assets/               # 框架图、结果图
+├── assets/               # Figures and visualizations
 ├── src/
-│   ├── train.py          # 训练脚本
-│   ├── evaluate.py       # 验证集评测脚本
-│   └── test.py           # 测试集预测文件生成脚本
+│   ├── train.py          # Training script
+│   ├── evaluate.py       # Validation evaluation script
+│   └── test.py           # Test-split prediction generation script
 ├── README.md
 ├── requirements.txt
 └── LICENSE
@@ -144,9 +143,11 @@ pip install -r requirements.txt
 
 ## Dataset / Benchmark
 
+Please download each dataset following the instructions in the respective official repositories and organize them as described below.
+
 ### ImageNet
 
-Download ImageNet1K (ILSVRC2012) test set from the [**official site**](https://image-net.org/index.php).
+Download the ImageNet1K (ILSVRC2012) test set from the [**official site**](https://image-net.org/index.php).
 
 ```text
 ├── ImageNet
@@ -168,12 +169,8 @@ Download from the [**official repository**](https://github.com/XiaoxiaoGuo/fashi
 │   │   ├── split.dress.[train | val | test].json
 │   │   ├── split.toptee.[train | val | test].json
 │   │   └── split.shirt.[train | val | test].json
-│   ├── dress
-│   │   └── [B000ALGQSY.jpg | ...]
-│   ├── shirt
-│   │   └── [B00006M009.jpg | ...]
-│   └── toptee
-│       └── [B0000DZQD6.jpg | ...]
+│   ├── dress / shirt / toptee
+│   │   └── [*.jpg]
 ```
 
 ### CIRR
@@ -182,13 +179,8 @@ Download from the [**official repository**](https://github.com/Cuberick-Orion/CI
 
 ```text
 ├── CIRR
-│   ├── train
-│   │   └── [0 | 1 | 2 | ...]
-│   │       └── [train-10108-0-img0.png | ...]
-│   ├── dev
-│   │   └── [dev-0-0-img0.png | ...]
-│   ├── test1
-│   │   └── [test1-0-0-img0.png | ...]
+│   ├── train / dev / test1
+│   │   └── [*.png]
 │   └── cirr
 │       ├── captions
 │       │   └── cap.rc2.[train | val | test1].json
@@ -208,18 +200,18 @@ Download from the [**official repository**](https://github.com/miccunifi/CIRCO).
 │       ├── annotations
 │       │   └── image_info_unlabeled2017.json
 │       └── unlabeled2017
-│           └── [000000243611.jpg | ...]
+│           └── [*.jpg]
 ```
 
 ---
 
 ## Pre-trained Model
 
-Pre-trained model weights: [**Google Drive**](https://drive.google.com/file/d/1WYeBONqZX78IbJ8Jd4qtzZ1zy_ekX-i2/view?usp=sharing)
+Pre-trained model weights are available on [**Google Drive**](https://drive.google.com/file/d/1WYeBONqZX78IbJ8Jd4qtzZ1zy_ekX-i2/view?usp=sharing).
 
-下载后放入 `model_save/` 目录，或通过 `--model-path` 参数指定路径。
+After downloading, place the checkpoint under `model_save/`, or specify the path via the `--model_path` argument at evaluation time.
 
-> 图像描述由 [BLIP](https://github.com/salesforce/BLIP) 生成。
+> Image captions used during training are generated by [BLIP](https://github.com/salesforce/BLIP). Please refer to the BLIP repository for caption generation details.
 
 ---
 
@@ -229,12 +221,12 @@ Pre-trained model weights: [**Google Drive**](https://drive.google.com/file/d/1W
 
 ```bash
 python src/train.py \
-    --save-frequency 1 \
-    --batch-size=256 \
+    --save_frequency 1 \
+    --batch_size=256 \
     --lr=4e-5 \
     --wd=0.01 \
     --epochs=60 \
-    --model-dir="./model_save" \
+    --model_dir="./model_save" \
     --workers=8 \
     --model ViT-L/14
 ```
@@ -244,38 +236,40 @@ python src/train.py \
 ```bash
 python src/evaluate.py \
     --dataset='cirr' \
-    --save-path='' \
-    --model-path=""
+    --save_path='' \
+    --model_path=""
 ```
 
-| 参数 | 说明 |
-|------|------|
-| `--dataset` | 数据集，可选 `fashioniq` / `cirr` / `circo` |
-| `--model-path` | 预训练模型路径 |
-| `--save-path` | 预测结果保存路径 |
+| Argument | Description |
+|----------|-------------|
+| `--dataset` | Dataset to evaluate on. Options: `fashioniq` / `cirr` / `circo` |
+| `--model_path` | Path to the pre-trained model checkpoint |
+| `--save_path` | Path to save the prediction results |
 
 ### Test (split=test)
 
-生成可上传至官方评测服务器的预测文件：
+Generate prediction files for submission to the official evaluation servers:
 - [CIRR Evaluation Server](https://cirr.cecs.anu.edu.au/)
 - [CIRCO Evaluation Server](https://circo.micc.unifi.it/)
 
 ```bash
 python src/test.py \
     --dataset='cirr' \
-    --save-path='' \
-    --model-path=""
+    --save_path='' \
+    --model_path=""
 ```
 
-| 参数 | 说明 |
-|------|------|
-| `--dataset` | 数据集，可选 `cirr` / `circo` |
-| `--model-path` | 预训练模型路径 |
-| `--save-path` | 预测文件保存路径 |
+| Argument | Description |
+|----------|-------------|
+| `--dataset` | Options: `cirr` / `circo` |
+| `--model_path` | Path to the pre-trained model checkpoint |
+| `--save_path` | Path to save the prediction file |
 
 ---
 
 ## Citation
+
+If you find this work useful for your research, please consider citing:
 
 ```bibtex
 @inproceedings{FTI4CIR,
@@ -291,6 +285,8 @@ python src/test.py \
 ---
 
 ## Acknowledgement
+
+We thank the following open-source projects for providing valuable components and implementations:
 
 - [CLIP](https://github.com/openai/CLIP)
 - [BLIP](https://github.com/salesforce/BLIP)
