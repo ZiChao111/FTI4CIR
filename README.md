@@ -14,8 +14,7 @@
 ## Links
 
 - **Paper**: [`SIGIR '24`](https://doi.org/10.1145/3626772.3657831)
-- **Pre-trained Model**: [`Google Drive`](https://drive.google.com/file/d/1WYeBONqZX78IbJ8Jd4qtzZ1zy_ekX-i2/view?usp=sharing)
-- **Code Repository**: [`GitHub`](https://github.com/ZiChao111/FTI4CIR)
+- **Pre-trained Model**: [`huggingface`](https://huggingface.co/iLearn-Lab/SIGIR24-FTI4CIR)
 
 ---
 
